@@ -319,6 +319,37 @@ Improve reliability, maintainability, and developer handoff quality.
 
 ---
 
+## Phase 9: Streamlit Deployment Layer
+### Goal
+Ship a lightweight hosted demo using Streamlit so stakeholders can interact with recommendations without running the full Next.js + FastAPI stack locally.
+
+### Components
+- Streamlit app wrapper (for example `streamlit_app.py`) that calls the same recommendation flow.
+- UI inputs mapped to Phase 2 request contract:
+  - location
+  - budget
+  - cuisines
+  - minimum_rating
+  - additional_preferences
+  - top_n
+- Response rendering based on Phase 5 canonical payload (`source`, `items`, `user_message`, `empty_state_code`, telemetry).
+- Deployment config for Streamlit Community Cloud:
+  - pinned Python dependencies
+  - secrets managed in Streamlit secrets (no hardcoded API keys)
+  - startup command and health sanity checks
+
+### Deliverables
+- `streamlit_app.py` with end-to-end recommendation flow
+- Streamlit requirements file and deployment instructions
+- Hosted Streamlit URL documented in README
+
+### Exit Criteria
+- Public Streamlit URL is reachable
+- User can submit preferences and receive recommendations end-to-end
+- Secrets are injected via deployment settings, not committed in git
+
+---
+
 ## Cross-Cutting Architecture Decisions
 - **Grounding first:** LLM only ranks pre-filtered candidate restaurants.
 - **Deterministic + AI hybrid:** Deterministic filtering ensures relevance; LLM adds ranking quality and reasoning.
@@ -330,3 +361,4 @@ Improve reliability, maintainability, and developer handoff quality.
 - **Milestone 1:** Phases **0-5** — pipeline + Phase 5 canonical response complete under `src/phases/` + CLI smoke paths *(done for Phases 1-5 code paths in repo)*
 - **Milestone 2:** Phases **6-7** — **backend HTTP API** returning Phase 5 JSON + **frontend** consuming only that API (local end-to-end demo)
 - **Milestone 3:** Phase **8** — CI, API contract tests, operational docs, hardening
+- **Milestone 4:** Phase **9** — Streamlit hosted demo deployment for quick stakeholder access

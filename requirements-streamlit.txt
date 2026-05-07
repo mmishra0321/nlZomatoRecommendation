@@ -1,0 +1,3 @@
+-r backend/requirements.txt
+-r src/phases/phase1_ingestion/requirements.txt
+streamlit==1.44.1

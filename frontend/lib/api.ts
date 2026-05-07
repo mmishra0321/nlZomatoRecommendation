@@ -1,6 +1,6 @@
 import type { ApiErrorResponse, RecommendationRequest, RecommendationResponse } from "@/lib/types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+const API_PATH = "/api/recommendations";
 
 export class ApiRequestError extends Error {
   status: number;
@@ -18,18 +18,14 @@ export async function fetchRecommendations(
 ): Promise<RecommendationResponse> {
   let res: Response;
   try {
-    res = await fetch(`${BASE_URL}/api/v1/recommendations`, {
+    res = await fetch(API_PATH, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
       cache: "no-store",
     });
   } catch (error) {
-    throw new ApiRequestError(
-      "Unable to reach the recommendation API. Check backend status and NEXT_PUBLIC_API_BASE_URL.",
-      0,
-      null,
-    );
+    throw new ApiRequestError("Unable to reach the local frontend API route.", 0, null);
   }
 
   if (!res.ok) {

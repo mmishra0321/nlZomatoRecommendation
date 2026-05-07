@@ -6,12 +6,11 @@ import { ApiRequestError, fetchRecommendations } from "@/lib/api";
 import type { RecommendationResponse } from "@/lib/types";
 
 type FieldErrors = Record<string, string>;
-
-const SOURCE_LABEL: Record<string, string> = {
-  llm: "AI ranked",
-  fallback: "Fallback",
-  no_candidates: "No candidates",
-};
+const LOCATION_OPTIONS = ["Basavanagudi", "Bellandur", "Koramangala", "Indiranagar", "HSR Layout"];
+const CUISINE_OPTIONS = ["North Indian", "South Indian", "Chinese", "Italian", "Biryani", "Desserts"];
+const BUDGET_OPTIONS = ["", "low", "medium", "high", "500", "1000", "1500", "2000"];
+const RATING_OPTIONS = ["0", "3", "3.5", "4", "4.5"];
+const TOP_N_OPTIONS = ["3", "5", "8", "10"];
 
 function parseCuisineInput(value: string): string[] {
   return value
@@ -33,24 +32,18 @@ function parseBudgetInput(value: string): string | number | undefined {
 }
 
 export default function RecommendationClient() {
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("Basavanagudi");
   const [budget, setBudget] = useState("");
-  const [cuisinesInput, setCuisinesInput] = useState("");
-  const [minimumRating, setMinimumRating] = useState("4.0");
+  const [cuisinesInput, setCuisinesInput] = useState("North Indian");
+  const [minimumRating, setMinimumRating] = useState("3.5");
+  const [specificCravings, setSpecificCravings] = useState("Biryani, Butter Chicken");
   const [additionalPreferences, setAdditionalPreferences] = useState("");
   const [topN, setTopN] = useState("5");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [result, setResult] = useState<RecommendationResponse | null>(null);
-
-  const bannerClass = useMemo(() => {
-    if (!result) return "banner";
-    if (result.empty_state_code === "degraded_model") return "banner bannerWarning";
-    if (result.empty_state_code === "no_filter_match") return "banner bannerMuted";
-    return "banner bannerSuccess";
-  }, [result]);
+  const topItems = useMemo(() => result?.items ?? [], [result]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,12 +52,13 @@ export default function RecommendationClient() {
     setResult(null);
     setIsSubmitting(true);
 
+    const notes = [specificCravings.trim(), additionalPreferences.trim()].filter(Boolean).join(". ");
     const payload = {
       location: location.trim(),
       minimum_rating: Number(minimumRating),
       budget: parseBudgetInput(budget),
       cuisines: parseCuisineInput(cuisinesInput),
-      additional_preferences: additionalPreferences.trim() || undefined,
+      additional_preferences: notes || undefined,
       top_n: Number(topN),
     };
 
@@ -82,16 +76,16 @@ export default function RecommendationClient() {
             maybeDetail.errors
           ) {
             setFieldErrors(maybeDetail.errors);
-            setErrorMessage("Please fix the highlighted fields.");
+            setErrorMessage("Please fix highlighted fields and retry.");
           } else {
             setErrorMessage("Request validation failed.");
           }
         } else if (error.status === 504) {
-          setErrorMessage("The backend timed out. Try a smaller query and retry.");
+          setErrorMessage("The backend timed out. Try again with fewer constraints.");
         } else if (error.status === 0) {
           setErrorMessage(error.message);
         } else {
-          setErrorMessage(`Unexpected API error (${error.status}). Please retry.`);
+          setErrorMessage(`Unexpected API error (${error.status}).`);
         }
       } else {
         setErrorMessage("Unexpected client error. Please retry.");
@@ -102,140 +96,126 @@ export default function RecommendationClient() {
   }
 
   return (
-    <main className="container">
-      <section className="panel">
-        <h1 className="title">AI Restaurant Recommender</h1>
-        <p className="subtitle">
-          Enter preferences, call Phase 6 API, and render Phase 5 response fields.
-        </p>
+    <div className="screenRoot">
+      <header className="mainHeader">
+        <div className="logoText">Zomato AI</div>
+        <div className="headerTitle">Recommendations</div>
+      </header>
 
-        <form onSubmit={onSubmit} className="formGrid">
-          <label>
-            Location *
-            <input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              required
-              placeholder="Bellandur"
-            />
-            {fieldErrors.location && <span className="fieldError">{fieldErrors.location}</span>}
-          </label>
-
-          <label>
-            Budget (low/medium/high or number)
-            <input
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              placeholder="2000 or high"
-            />
-            {fieldErrors.budget && <span className="fieldError">{fieldErrors.budget}</span>}
-          </label>
-
-          <label>
-            Cuisines (comma-separated)
-            <input
-              value={cuisinesInput}
-              onChange={(e) => setCuisinesInput(e.target.value)}
-              placeholder="North Indian, Chinese"
-            />
-            {fieldErrors.cuisines && <span className="fieldError">{fieldErrors.cuisines}</span>}
-          </label>
-
-          <label>
-            Minimum rating (0-5)
-            <input
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              value={minimumRating}
-              onChange={(e) => setMinimumRating(e.target.value)}
-            />
-            {fieldErrors.minimum_rating && (
-              <span className="fieldError">{fieldErrors.minimum_rating}</span>
-            )}
-          </label>
-
-          <label>
-            Top N
-            <input
-              type="number"
-              min="1"
-              max="20"
-              value={topN}
-              onChange={(e) => setTopN(e.target.value)}
-            />
-          </label>
-
-          <label className="fullWidth">
-            Additional preferences
-            <textarea
-              rows={3}
-              value={additionalPreferences}
-              onChange={(e) => setAdditionalPreferences(e.target.value)}
-              placeholder="Family-friendly, quick service, veg options..."
-            />
-            {fieldErrors.additional_preferences && (
-              <span className="fieldError">{fieldErrors.additional_preferences}</span>
-            )}
-          </label>
-
-          <button type="submit" disabled={isSubmitting || !location.trim()}>
-            {isSubmitting ? "Loading recommendations..." : "Get recommendations"}
-          </button>
-        </form>
-
-        {errorMessage && <p className="errorBanner">{errorMessage}</p>}
-      </section>
-
-      {result && (
-        <section className="panel">
-          <div className={bannerClass}>
-            <strong>{result.user_message}</strong>
-            {result.detail ? <p>{result.detail}</p> : null}
-            <div className="badgeRow">
-              <span className="badge">{SOURCE_LABEL[result.source] || result.source}</span>
-              <span className="badge">State: {result.empty_state_code}</span>
-            </div>
-          </div>
-
-          <h2>Results</h2>
-          {result.items.length === 0 ? (
-            <p>No recommendations returned for this query.</p>
-          ) : (
-            <div className="cardGrid">
-              {result.items.map((item) => (
-                <article key={item.restaurant_id} className="card">
-                  <div className="cardHeader">
-                    <span className="rank">#{item.rank}</span>
-                    <h3>{item.name}</h3>
+      <section className="recommendationsSection">
+        <aside className="leftFilters">
+          <h2>Refine Preferences</h2>
+          <form onSubmit={onSubmit} className="filterForm">
+            <label>
+              Location
+              <select value={location} onChange={(e) => setLocation(e.target.value)} required>
+                {LOCATION_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Budget
+              <select value={budget} onChange={(e) => setBudget(e.target.value)}>
+                {BUDGET_OPTIONS.map((option) => (
+                  <option key={option || "any"} value={option}>
+                    {option || "Any"}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Cuisine
+              <select value={cuisinesInput} onChange={(e) => setCuisinesInput(e.target.value)}>
+                {CUISINE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Minimum Rating
+              <select value={minimumRating} onChange={(e) => setMinimumRating(e.target.value)}>
+                {RATING_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}+
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Top N
+              <select value={topN} onChange={(e) => setTopN(e.target.value)}>
+                {TOP_N_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    Top {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Additional Preferences
+              <textarea
+                rows={3}
+                value={additionalPreferences}
+                onChange={(e) => setAdditionalPreferences(e.target.value)}
+                placeholder="Family-friendly, low noise, outdoor seating"
+              />
+            </label>
+            <button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Loading..." : "Get Picks"}
+            </button>
+          </form>
+        </aside>
+        <div className="rightResults">
+          <h2>Zomato AI&apos;s Top Picks for You</h2>
+          {errorMessage && <p className="error">{errorMessage}</p>}
+          {isSubmitting ? (
+            <div className="recGrid">
+              {new Array(4).fill(null).map((_, idx) => (
+                <article key={`loading-${idx}`} className="recCard loadingCard">
+                  <div className="recPhoto shimmer" />
+                  <div className="recBody">
+                    <div className="line shimmer short" />
+                    <div className="line shimmer medium" />
+                    <div className="line shimmer long" />
+                    <div className="line shimmer long" />
+                    <div className="btnSkeleton shimmer" />
                   </div>
-                  <p>
-                    <strong>Rating:</strong> {item.rating.toFixed(1)}
-                  </p>
-                  <p>
-                    <strong>Cost for two:</strong>{" "}
-                    {item.cost_for_two == null ? "N/A" : `₹${item.cost_for_two}`}
-                  </p>
-                  <p className="cuisineTags">
-                    {item.cuisines.map((cuisine) => (
-                      <span key={`${item.restaurant_id}-${cuisine}`} className="tag">
-                        {cuisine}
-                      </span>
-                    ))}
-                  </p>
-                  <p>{item.explanation}</p>
                 </article>
               ))}
             </div>
+          ) : topItems.length > 0 ? (
+            <div className="recGrid">
+              {topItems.map((item) => (
+                <article key={item.restaurant_id} className="recCard">
+                  <div className="recPhoto" />
+                  <div className="recBody">
+                    <h3>{item.name}</h3>
+                    <p className="muted">
+                      {item.cuisines.join(" • ")} • {item.rating.toFixed(1)} miles away
+                    </p>
+                    <p className="insight">{item.explanation}</p>
+                    <button type="button">View Full Menu</button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="emptyState">Set filters and click Get Picks to see recommendations.</p>
           )}
+        </div>
+      </section>
 
-          <details>
-            <summary>Telemetry</summary>
-            <pre>{JSON.stringify(result.telemetry, null, 2)}</pre>
-          </details>
-        </section>
-      )}
-    </main>
+      <footer className="mainFooter">
+        <strong>Zomato AI</strong>
+        <span>AI Privacy Policy</span>
+        <span>Smart Search FAQ</span>
+        <span>Help Center</span>
+      </footer>
+    </div>
   );
 }
