@@ -8,6 +8,19 @@ import streamlit as st
 
 from src.phases.phase4_llm.dotenv import load_dotenv
 
+LOCATION_OPTIONS = ["Bellandur", "Koramangala", "Indiranagar", "HSR Layout", "Basavanagudi"]
+BUDGET_OPTIONS = ["", "low", "medium", "high", "500", "1000", "1500", "2000"]
+CUISINE_OPTIONS = [
+    "North Indian",
+    "South Indian",
+    "Chinese",
+    "Italian",
+    "Biryani",
+    "Desserts",
+]
+RATING_OPTIONS = [0.0, 3.0, 3.5, 4.0, 4.5]
+TOP_N_OPTIONS = [3, 5, 8, 10]
+
 
 def _bootstrap_env() -> None:
     """Load local .env and then apply Streamlit secrets overrides."""
@@ -69,19 +82,18 @@ def main() -> None:
     with st.form("recommendation_form"):
         c1, c2, c3 = st.columns(3)
         with c1:
-            location = st.text_input("Location", value="Bellandur")
-            cuisines_raw = st.text_input("Cuisines (comma-separated)", value="North Indian")
+            location = st.selectbox("Location", LOCATION_OPTIONS, index=0)
+            selected_cuisine = st.selectbox("Cuisine", CUISINE_OPTIONS, index=0)
         with c2:
-            budget = st.text_input("Budget (low/medium/high or number)", value="1500")
-            minimum_rating = st.number_input(
-                "Minimum Rating",
-                min_value=0.0,
-                max_value=5.0,
-                value=4.0,
-                step=0.1,
+            budget = st.selectbox(
+                "Budget",
+                BUDGET_OPTIONS,
+                index=6,  # 1500
+                format_func=lambda x: "Any" if x == "" else str(x),
             )
+            minimum_rating = st.selectbox("Minimum Rating", RATING_OPTIONS, index=3)
         with c3:
-            top_n = st.number_input("Top N", min_value=1, max_value=20, value=5, step=1)
+            top_n = st.selectbox("Top N", TOP_N_OPTIONS, index=1)
             additional_preferences = st.text_area(
                 "Additional Preferences",
                 value="quiet seating, family-friendly",
@@ -90,10 +102,10 @@ def main() -> None:
         submitted = st.form_submit_button("Get Recommendations")
 
     if submitted:
-        cuisines = [part.strip() for part in cuisines_raw.split(",") if part.strip()]
+        cuisines = [selected_cuisine] if selected_cuisine else []
         payload = {
             "location": location,
-            "budget": budget.strip() or None,
+            "budget": budget or None,
             "cuisines": cuisines,
             "minimum_rating": float(minimum_rating),
             "additional_preferences": additional_preferences.strip() or None,
