@@ -19,7 +19,44 @@ CUISINE_OPTIONS = [
     "Desserts",
 ]
 RATING_OPTIONS = [0.0, 3.0, 3.5, 4.0, 4.5]
-TOP_N_OPTIONS = [3, 5, 8, 10]
+
+
+def _apply_dark_styles() -> None:
+    """Enforce dark UI surfaces across Streamlit-hosted deployments."""
+    st.markdown(
+        """
+        <style>
+          .stApp {
+            background-color: #0f1116;
+            color: #e8ebf2;
+          }
+          [data-testid="stForm"] {
+            background: #171b28;
+            border: 1px solid #2a3145;
+            border-radius: 12px;
+            padding: 0.85rem 0.9rem;
+          }
+          [data-testid="stForm"] label,
+          .stMarkdown,
+          .stCaption {
+            color: #c7cfdf !important;
+          }
+          .stButton > button {
+            background: linear-gradient(135deg, #ff4f5e, #d21f39);
+            color: #ffffff;
+            border: 0;
+          }
+          .stButton > button:hover {
+            filter: brightness(1.08);
+            color: #ffffff;
+          }
+          [data-testid="stSlider"] label {
+            color: #c7cfdf !important;
+          }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def _bootstrap_env() -> None:
@@ -75,6 +112,7 @@ def _render_results(payload: dict[str, Any]) -> None:
 def main() -> None:
     st.set_page_config(page_title="Zomato AI Streamlit Demo", page_icon="🍽️", layout="wide")
     _bootstrap_env()
+    _apply_dark_styles()
 
     st.title("Zomato AI - Streamlit Demo")
     st.caption("Phase 9 deployment surface (same recommendation flow as backend/API).")
@@ -93,7 +131,7 @@ def main() -> None:
             )
             minimum_rating = st.selectbox("Minimum Rating", RATING_OPTIONS, index=3)
         with c3:
-            top_n = st.selectbox("Top N", TOP_N_OPTIONS, index=1)
+            top_n = st.slider("Top K", min_value=1, max_value=10, value=5, step=1)
             additional_preferences = st.text_area(
                 "Additional Preferences",
                 value="quiet seating, family-friendly",
