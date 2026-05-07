@@ -6,8 +6,6 @@ from typing import Any
 
 import streamlit as st
 
-from backend.app.orchestrator import run_recommendation
-from backend.app.schemas import RecommendationRequest
 from src.phases.phase4_llm.dotenv import load_dotenv
 
 
@@ -101,6 +99,20 @@ def main() -> None:
             "additional_preferences": additional_preferences.strip() or None,
             "top_n": int(top_n),
         }
+
+        try:
+            # Import lazily so missing deployment deps surface as a user-friendly
+            # Streamlit error instead of crashing at module import time.
+            from backend.app.orchestrator import run_recommendation
+            from backend.app.schemas import RecommendationRequest
+        except ModuleNotFoundError as exc:
+            st.error(
+                "A required dependency is missing in the deployment environment. "
+                "Ensure Streamlit uses `requirements.txt` (or `requirements-streamlit.txt`) "
+                "which includes `datasets` and backend dependencies."
+            )
+            st.exception(exc)
+            return
 
         try:
             body = RecommendationRequest(**payload)

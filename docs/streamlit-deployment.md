@@ -19,6 +19,7 @@ Open the URL shown by Streamlit (typically `http://localhost:8501`).
    - **Main file path:** `streamlit_app.py`
 3. In **App settings -> Advanced settings** set:
    - **Python dependencies file:** `requirements-streamlit.txt`
+   - If you leave this default, Streamlit will use root `requirements.txt` (also supported in this repo).
 4. Add secrets in Streamlit (Settings -> Secrets):
 
 ```toml
