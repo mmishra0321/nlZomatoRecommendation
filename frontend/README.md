@@ -20,7 +20,19 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment
 
-- `NEXT_PUBLIC_API_BASE_URL` (default in `.env.example`: `http://127.0.0.1:8000`)
+- `NEXT_PUBLIC_API_BASE_URL` (use `/api/recommendations`)
+- `BACKEND_API_BASE_URL` (server-side proxy target; set to your Render backend URL)
+
+## Deploy on Vercel
+
+1. Import this repo in Vercel and set **Root Directory** to `frontend`.
+2. Keep framework preset as **Next.js**.
+3. Add project environment variable:
+   - `BACKEND_API_BASE_URL=https://<your-render-service>.onrender.com`
+4. Deploy.
+
+The browser talks to `/api/recommendations` on Vercel, and the Next.js API route forwards to Render.
+In production, deployment fails safely if `BACKEND_API_BASE_URL` is missing.
 
 ## UI behavior mapped to architecture
 

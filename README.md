@@ -46,3 +46,4 @@ Implement data ingestion and canonical modeling:
 - CI workflow: `.github/workflows/ci.yml`
 - Handoff/ops notes: `docs/phase8-hardening-handoff.md`
 - Backend hosting (Render): `docs/render-deployment.md` + `render.yaml`
+- Frontend hosting (Vercel): `docs/vercel-deployment.md`
