@@ -47,12 +47,11 @@ curl -s -X POST http://127.0.0.1:8000/api/v1/recommendations \
 | `PIPELINE_TIMEOUT_SECONDS` | Wall-clock cap for the sync pipeline (default `90`) |
 | `API_MAX_TOP_N`, `API_MAX_DATASET_LIMIT`, … | See `/api/v1/meta` and `app/config.py` |
 
-## Deploy on Render
+## Deploy on Railway
 
 Use the repo root as the service root; `PYTHONPATH` must include the repo root.
 
-- Blueprint: `render.yaml` at the repo root (import **New → Blueprint** in Render).
-- Step-by-step: `docs/render-deployment.md`.
+- Step-by-step: `docs/railway-deployment.md`.
 
 **Start command:**
 
@@ -60,7 +59,7 @@ Use the repo root as the service root; `PYTHONPATH` must include the repo root.
 PYTHONPATH=. uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'
 ```
 
-Set **`GROQ_API_KEY`** and **`CORS_ORIGINS`** (your Vercel URL) in the Render dashboard. Health check: **`GET /health`**.
+Set **`GROQ_API_KEY`** and **`CORS_ORIGINS`** (your Vercel URL) in the Railway service variables. Health check: **`GET /health`**.
 
 ## Tests
 

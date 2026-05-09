@@ -45,5 +45,5 @@ Implement data ingestion and canonical modeling:
 - Build frontend: `cd frontend && npm ci && npm run build`
 - CI workflow: `.github/workflows/ci.yml`
 - Handoff/ops notes: `docs/phase8-hardening-handoff.md`
-- Backend hosting (Render): `docs/render-deployment.md` + `render.yaml`
+- Backend hosting (Railway): `docs/railway-deployment.md`
 - Frontend hosting (Vercel): `docs/vercel-deployment.md`

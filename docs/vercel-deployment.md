@@ -11,13 +11,13 @@ This frontend is a Next.js app in `frontend/` and uses a server-side API proxy a
    - **Install Command:** `npm ci`
    - **Build Command:** `npm run build`
 3. Add environment variable:
-   - `BACKEND_API_BASE_URL=https://<your-render-service>.onrender.com`
+   - `BACKEND_API_BASE_URL=https://<your-railway-backend-domain>`
 4. Deploy.
 
 ## Why this config
 
 - Browser requests stay same-origin (`/api/recommendations`) on Vercel.
-- The API route (`frontend/app/api/recommendations/route.ts`) forwards requests to Render.
+- The API route (`frontend/app/api/recommendations/route.ts`) forwards requests to Railway.
 - In production, if `BACKEND_API_BASE_URL` is missing, the API route returns a clear configuration error instead of silently using localhost.
 
 ## Verify
@@ -25,5 +25,5 @@ This frontend is a Next.js app in `frontend/` and uses a server-side API proxy a
 1. Open the Vercel frontend URL.
 2. Submit a recommendation query.
 3. If you get backend errors, verify:
-   - Render API is up (`/health`).
-   - `BACKEND_API_BASE_URL` in Vercel points to the correct Render URL.
+   - Railway API is up (`/health`).
+   - `BACKEND_API_BASE_URL` in Vercel points to the correct Railway URL.
