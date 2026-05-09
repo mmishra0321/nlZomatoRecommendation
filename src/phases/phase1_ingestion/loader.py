@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import islice
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -115,8 +116,14 @@ def iter_restaurants(
     keep_raw_record: bool = False,
 ) -> tuple[list[Restaurant], IngestionStats]:
     stats = IngestionStats()
-    dataset = load_dataset(dataset_id, split=split)
-    rows = dataset if limit is None else dataset.select(range(min(limit, len(dataset))))
+    if limit is not None:
+        # Streaming avoids loading the full HF split in memory (important on
+        # small deployment instances like Railway free/shared containers).
+        dataset = load_dataset(dataset_id, split=split, streaming=True)
+        rows = islice(dataset, max(limit, 0))
+    else:
+        dataset = load_dataset(dataset_id, split=split)
+        rows = dataset
 
     dedupe_keys: set[tuple[str, str]] = set()
     restaurants: list[Restaurant] = []

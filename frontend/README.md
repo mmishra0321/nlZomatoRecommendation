@@ -20,19 +20,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment
 
-- `NEXT_PUBLIC_API_BASE_URL` (use `/api/recommendations`)
-- `BACKEND_API_BASE_URL` (server-side proxy target; set to your Railway backend URL)
-
-## Deploy on Vercel
-
-1. Import this repo in Vercel and set **Root Directory** to `frontend`.
-2. Keep framework preset as **Next.js**.
-3. Add project environment variable:
-   - `BACKEND_API_BASE_URL=https://<your-railway-backend-domain>`
-4. Deploy.
-
-The browser talks to `/api/recommendations` on Vercel, and the Next.js API route forwards to Railway.
-In production, deployment fails safely if `BACKEND_API_BASE_URL` is missing.
+- `NEXT_PUBLIC_API_BASE_URL` — not used by the current client (calls `/api/recommendations` proxy); keep for reference if you extend the client.
+- `BACKEND_API_BASE_URL` — where the Next.js API route proxies `POST /api/recommendations` (local backend URL for development).
 
 ## UI behavior mapped to architecture
 

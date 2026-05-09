@@ -1,6 +1,1 @@
-# Root requirements used by Railway/Nixpacks auto-detection.
-# Keep backend runtime deps here directly to avoid relative-include path issues.
-fastapi>=0.109
-uvicorn[standard]>=0.27
-httpx>=0.26
-datasets>=2.14.0
+-r requirements-streamlit.txt

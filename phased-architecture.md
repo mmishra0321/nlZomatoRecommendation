@@ -319,6 +319,25 @@ Improve reliability, maintainability, and developer handoff quality.
 
 ---
 
+## Phase 9: Streamlit unified deployment (hosted demo)
+
+### Goal
+Ship a single hosted app where the **UI and recommendation pipeline** run together (no separate frontend/backend hosts required for the demo).
+
+### Components
+- `streamlit_app.py` at repo root: form + results, calls `run_recommendation()` (same orchestration as Phase 6).
+- Root `requirements.txt` includes `requirements-streamlit.txt` for Streamlit Community Cloud dependency discovery.
+- `.streamlit/config.toml` for theme; secrets via Streamlit Cloud (e.g. `GROQ_API_KEY`).
+
+### Deliverables
+- Runnable `streamlit run streamlit_app.py` locally.
+- `docs/streamlit-deployment.md` with plan and Cloud setup notes.
+
+### Exit Criteria
+- Public or internal demo URL serves end-to-end recommendations without exposing Groq keys to the browser bundle.
+
+---
+
 ## Cross-Cutting Architecture Decisions
 - **Grounding first:** LLM only ranks pre-filtered candidate restaurants.
 - **Deterministic + AI hybrid:** Deterministic filtering ensures relevance; LLM adds ranking quality and reasoning.
@@ -330,3 +349,4 @@ Improve reliability, maintainability, and developer handoff quality.
 - **Milestone 1:** Phases **0-5** — pipeline + Phase 5 canonical response complete under `src/phases/` + CLI smoke paths *(done for Phases 1-5 code paths in repo)*
 - **Milestone 2:** Phases **6-7** — **backend HTTP API** returning Phase 5 JSON + **frontend** consuming only that API (local end-to-end demo)
 - **Milestone 3:** Phase **8** — CI, API contract tests, operational docs, hardening
+- **Milestone 4:** Phase **9** — Streamlit unified hosted demo (optional; one deploy for UI + pipeline)

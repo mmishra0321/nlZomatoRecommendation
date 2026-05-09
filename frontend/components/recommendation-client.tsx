@@ -67,6 +67,13 @@ export default function RecommendationClient() {
       setResult(response);
     } catch (error) {
       if (error instanceof ApiRequestError) {
+        const detailMessage =
+          error.payload?.detail &&
+          typeof error.payload.detail === "object" &&
+          "message" in error.payload.detail &&
+          typeof error.payload.detail.message === "string"
+            ? error.payload.detail.message
+            : null;
         if (error.status === 422) {
           const maybeDetail = error.payload?.detail;
           if (
@@ -85,7 +92,7 @@ export default function RecommendationClient() {
         } else if (error.status === 0) {
           setErrorMessage(error.message);
         } else {
-          setErrorMessage(`Unexpected API error (${error.status}).`);
+          setErrorMessage(detailMessage ?? `Unexpected API error (${error.status}).`);
         }
       } else {
         setErrorMessage("Unexpected client error. Please retry.");

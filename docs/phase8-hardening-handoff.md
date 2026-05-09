@@ -48,7 +48,7 @@ Open `http://127.0.0.1:3000`.
 Core:
 
 - `GROQ_API_KEY`: required for primary LLM path.
-- `BACKEND_API_BASE_URL`: used by frontend API proxy route in deployments.
+- `BACKEND_API_BASE_URL`: used by the Next.js API proxy when running the Phase 7 frontend against a separate FastAPI process (local dev). Not used for Streamlit-only hosting (`docs/streamlit-deployment.md`).
 
 Backend tuning:
 
