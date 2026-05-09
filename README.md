@@ -39,15 +39,10 @@ Implement data ingestion and canonical modeling:
 - Phase 6: implemented in `backend/` (FastAPI + orchestration; see `backend/README.md`)
 - Phase 7: implemented in `frontend/` (Next.js UI consuming backend API)
 - Phase 8: hardening + handoff artifacts implemented (`.github/workflows/ci.yml`, docs, expanded API contract tests)
-- Phase 9: Streamlit deployment surface implemented (`streamlit_app.py`, `requirements-streamlit.txt`, deployment docs)
 
 ## Phase 8 Quickstart (quality gates)
 - Run tests: `PYTHONPATH=. pytest tests/phases -q`
 - Build frontend: `cd frontend && npm ci && npm run build`
 - CI workflow: `.github/workflows/ci.yml`
 - Handoff/ops notes: `docs/phase8-hardening-handoff.md`
-
-## Phase 9 Streamlit Demo
-- Local run: `pip install -r requirements-streamlit.txt && streamlit run streamlit_app.py`
-- Deployment guide: `docs/streamlit-deployment.md`
-- Hosted URL: `TBD (add Streamlit Cloud URL after deployment)`
+- Backend hosting (Render): `docs/render-deployment.md` + `render.yaml`

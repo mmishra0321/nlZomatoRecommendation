@@ -31,9 +31,11 @@ def groq_configured() -> bool:
 
 
 def cors_allow_origins() -> list[str]:
+    """Parse CORS_ORIGINS as a comma-separated list (Render / Vercel production)."""
     raw = os.environ.get("CORS_ORIGINS", "")
     if raw.strip():
         return [p.strip() for p in raw.split(",") if p.strip()]
+    # Local dev defaults (Vite + Next.js)
     return [
         "http://localhost:5173",
         "http://127.0.0.1:5173",

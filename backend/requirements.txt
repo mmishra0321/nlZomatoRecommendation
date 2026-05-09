@@ -1,3 +1,5 @@
 fastapi>=0.109
 uvicorn[standard]>=0.27
 httpx>=0.26
+# Runtime: Phase 1 dataset load (Hugging Face)
+datasets>=2.14.0
